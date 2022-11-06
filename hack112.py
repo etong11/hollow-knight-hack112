@@ -75,7 +75,7 @@ def onAppStart(app):
     #character info or objects
     #knight
     knightHeight, knightWidth = app.knightpic.height,app.knightpic.width
-    knightX = app.width/4; knightY = 502
+    knightX = app.width/16; knightY = 502
     app.knight=Knight(knightX, knightY, knightHeight, knightWidth)
     
     #boss
@@ -83,8 +83,7 @@ def onAppStart(app):
     bossX = app.width*(1/2) 
     bossY = 502
     app.boss=Boss(bossX, bossY, bossHeight, bossWidth)
-    
-    
+   
 def onStep(app): 
     if (app.gameOver or app.pause or not app.start):
         return
@@ -104,6 +103,7 @@ def onStep(app):
     
     if app.time%75==0:
         app.boss.attackKnight(app,app.knight)
+        print('attack')
     if app.bossTimerAtk==29:
         app.knight.isAttacking=False
         app.bossTimerAtk=0
@@ -192,102 +192,6 @@ def onKeyRelease(app, key):
 
 # changes movement, attack, and jump
 
-def tran(app,image):
-    return image.transpose(Image.FLIP_LEFT_RIGHT)
-
-def redrawAll(app):
-    #background
-    drawBoard(app)
-    
-    #characters
-    drawKnight(app)
-    drawBoss(app)
-
-    #health bars
-    drawHealth(app, 0,0,5,app.knight.getHealth())
-    drawHealth(app, app.width-65*10,0,65*10,app.boss.getHealth())
-
-    #hitboxes
-    drawHitboxes(app)
-    
-    if not app.start:
-        drawImage(app.startScreen, 0, 0, width=app.width, height=app.height)
-        drawLabel('Press space to start', app.width/2, app.height*(7/8), fill='white', size=30, font='monospace')
-    if app.gameOver:
-        if app.win: 
-            drawImage(app.gameoverWin, 0, 0, width=app.width, height=app.height)
-            drawRect(app.width/2-350/2, app.height*(6/8), 350, 100, fill='black')
-            drawLabel('Press space to play again', app.width/2+10, app.height*(6.5/8), fill='white', size=30, font='monospace')     
-        elif app.lose:
-            drawImage(app.gameoverimg, 0,0, width=app.width, height=app.height)
-            drawRect(app.width/2-350/2, app.height*(6/8), 350, 100, fill='black')
-            drawLabel('Press space to play again', app.width/2+10, app.height*(6/8), fill='white', size=30, font='monospace')  
-    if app.start and app.pause:
-        drawImage(app.pauseMenu, 0, 0, width=app.width, height=app.height)
-        drawRect(app.width/2-100, app.height/2-70, 200, 140, fill='black')
-        drawLabel('esc to unpause', app.width/2, app.height/2-30, fill='white', font='monospace', size=17)   
-        # drawLabel('tab for menu', app.width/2, app.height/2-10, fill='white', font='monospace', size=17)   
-        drawLabel('h for help', app.width/2, app.height/2+10, fill='white', font='monospace', size=17)
-    drawLabel('Made by sun garden', app.width/2, app.height-20, fill='white', font='monospace', size=17)   
-
-def drawBoard(app):
-    drawImage(app.backgroundim, 0,0, width=app.width, height=app.height)
-
-def drawHealth(app, x, y, maxhealth, health):
-    #draw rect takes in (leftX, topY, width, height)
-    drawRect(x,y,maxhealth*10,10, fill="grey")
-    if (health>0):
-        drawRect(x,y,health*10,10, fill="red")
-
-def drawKnight(app):
-    x,y=app.knight.getLoc()
-    width, height = app.knight.getBounds()
-    if app.knight.getDir()=="right":
-        if app.knight.attackframe>0:
-            b=copy.copy(app.knightattack)
-            drawImage(CMUImage(tran(app,b)),x, y,width=app.knightattack.width/2,height=app.knightpic.height)
-        drawImage(CMUImage(app.knightpic),x, y)
-    else:
-        if app.knight.attackframe>0:
-            drawImage(CMUImage(app.knightattack),x-width*2, y,width=app.knightattack.width/2,height=app.knightpic.height)
-        a=copy.copy(app.knightpic)
-        drawImage(CMUImage(tran(app,a)),x, y)
-
-def drawBoss(app):
-    x,y=app.boss.getLoc()
-    if app.boss.isJumping:#in air
-        a=app.bossatk[app.bossTimerJump%35]
-        if app.boss.getDir()=="right":
-            drawImage(CMUImage(a),x,y-(a.height)/2)
-        else:
-            b=copy.copy(a)
-            drawImage(CMUImage(tran(app,b)),x, y-(a.height)/2)
-    elif app.boss.isAttacking:
-        a=app.bossBasicAtk[(app.bossTimerAtk)%30]
-        if app.boss.getDir()=="right":
-            drawImage(CMUImage(a),x,502-a.height)
-        else:
-            b=copy.copy(a)
-            drawImage(CMUImage(tran(app,b)),x, 502-a.height)
-    
-    else:
-        if app.boss.getDir()=="right":
-            drawImage(CMUImage(app.bosspic),x, y)
-        else:
-            a=copy.copy(app.bosspic)
-            drawImage(CMUImage(tran(app,a)),x, y)
-    # if app.isBossAtking:
-    #     for image in app.bossatk:
-    #         drawImage(CMUImage(image),x,y)
-
-def drawHitboxes(app):
-    drawCircle(app.boss.loc[0], app.boss.loc[1], 15, fill = "red")
-    drawCircle(app.knight.loc[0], app.knight.loc[1], 15, fill = "red")
-    drawLine(app.boss.loc[0], 0, app.boss.loc[0], 3000, fill="red")
-    drawLine(app.boss.loc[0] + app.boss.width, 0, app.boss.loc[0] + app.boss.width, 3000, fill="red")
-    drawLine(app.knight.loc[0] + app.knight.width, 0, app.knight.loc[0] + app.knight.width, 3000, fill="red")
-    drawLine(app.knight.loc[0], 0, app.knight.loc[0], 3000, fill="red")
-
 def outOfBounds(app,L):
     x,y=L
     return not(x>0 and x<app.width and y>0 and y<app.height)
@@ -371,7 +275,7 @@ class Boss:
         self.width=width
         self.health=65
         self.speed=10
-        self.dir="right"
+        self.dir="left"
         self.movetime=0
         self.hitbox = [self.loc[0]-self.width,self.loc[1]-self.height,self.loc[0]+self.width,self.loc[1]+self.height]
         self.isAttacking = False
@@ -440,6 +344,109 @@ class Boss:
     def normalAttack(self, knight):
         knight.takeDamage(1)
     
+################################ Graphics ####################################
+def redrawAll(app):
+    #background
+    drawBoard(app)
+    
+    #characters
+    drawKnight(app)
+    drawBoss(app)
+
+    #health bars
+    drawHealth(app, 0,0,5,app.knight.getHealth())
+    drawHealth(app, app.width-65*10,0,65*10,app.boss.getHealth())
+
+    #hitboxes
+    drawHitboxes(app)
+    
+    #start screen
+    if not app.start:
+        drawImage(app.startScreen, 0, 0, width=app.width, height=app.height)
+        drawLabel('Press space to start', app.width/2, app.height*(7/8), fill='white', size=30, font='monospace')
+    #game over screens
+    if app.gameOver:
+        #win screen
+        if app.win: 
+            drawImage(app.gameoverWin, 0, 0, width=app.width, height=app.height)
+            drawRect(app.width/2-350/2, app.height*(6/8), 350, 100, fill='black')
+            drawLabel('Press space to play again', app.width/2+10, app.height*(6.5/8), fill='white', size=30, font='monospace')     
+        #lose screen
+        elif app.lose:
+            drawImage(app.gameoverimg, 0,0, width=app.width, height=app.height)
+            drawRect(app.width/2-350/2, app.height*(6/8), 350, 100, fill='black')
+            drawLabel('Press space to play again', app.width/2+10, app.height*(6/8), fill='white', size=30, font='monospace')  
+    #pause screen
+    if app.start and app.pause:
+        drawImage(app.pauseMenu, 0, 0, width=app.width, height=app.height)
+        drawRect(app.width/2-100, app.height/2-70, 200, 140, fill='black')
+        drawLabel('esc to unpause', app.width/2, app.height/2-30, fill='white', font='monospace', size=17)   
+        # drawLabel('tab for menu', app.width/2, app.height/2-10, fill='white', font='monospace', size=17)   
+        drawLabel('h for help', app.width/2, app.height/2+10, fill='white', font='monospace', size=17)
+    
+    drawLabel('Made by sun garden', app.width/2, app.height-20, fill='white', font='monospace', size=17)   
+
+def drawBoard(app):
+    drawImage(app.backgroundim, 0,0, width=app.width, height=app.height)
+
+def drawHealth(app, x, y, maxhealth, health):
+    #draw rect takes in (leftX, topY, width, height)
+    drawRect(x,y,maxhealth*10,10, fill="grey")
+    if (health>0):
+        drawRect(x,y,health*10,10, fill="red")
+
+def drawKnight(app):
+    x,y=app.knight.getLoc()
+    width, height = app.knight.getBounds()
+    if app.knight.getDir()=="right":
+        if app.knight.attackframe>0:
+            b=copy.copy(app.knightattack)
+            drawImage(CMUImage(tran(app,b)),x, y,width=app.knightattack.width/2,height=app.knightpic.height)
+        drawImage(CMUImage(app.knightpic),x, y)
+    else:
+        if app.knight.attackframe>0:
+            drawImage(CMUImage(app.knightattack),x-width*2, y,width=app.knightattack.width/2,height=app.knightpic.height)
+        a=copy.copy(app.knightpic)
+        drawImage(CMUImage(tran(app,a)),x, y)
+
+def drawBoss(app):
+    x,y=app.boss.getLoc()
+    if app.boss.isJumping:#in air
+        a=app.bossatk[app.bossTimerJump%35]
+        if app.boss.getDir()=="right":
+            drawImage(CMUImage(a),x,y-(a.height)/2)
+        else:
+            b=copy.copy(a)
+            drawImage(CMUImage(tran(app,b)),x, y-(a.height)/2)
+    elif app.boss.isAttacking:
+        a=app.bossBasicAtk[(app.bossTimerAtk)%30]
+        if app.boss.getDir()=="right":
+            drawImage(CMUImage(a),x,502-a.height)
+        else:
+            b=copy.copy(a)
+            drawImage(CMUImage(tran(app,b)),x, 502-a.height)
+    
+    else:
+        if app.boss.getDir()=="right":
+            drawImage(CMUImage(app.bosspic),x, y)
+        else:
+            a=copy.copy(app.bosspic)
+            drawImage(CMUImage(tran(app,a)),x, y)
+    # if app.isBossAtking:
+    #     for image in app.bossatk:
+    #         drawImage(CMUImage(image),x,y)
+
+def drawHitboxes(app):
+    drawCircle(app.boss.loc[0], app.boss.loc[1], 15, fill = "red")
+    drawCircle(app.knight.loc[0], app.knight.loc[1], 15, fill = "red")
+    drawLine(app.boss.loc[0], 0, app.boss.loc[0], 3000, fill="red")
+    drawLine(app.boss.loc[0] + app.boss.width, 0, app.boss.loc[0] + app.boss.width, 3000, fill="red")
+    drawLine(app.knight.loc[0] + app.knight.width, 0, app.knight.loc[0] + app.knight.width, 3000, fill="red")
+    drawLine(app.knight.loc[0], 0, app.knight.loc[0], 3000, fill="red")
+
+def tran(app,image):
+    return image.transpose(Image.FLIP_LEFT_RIGHT)
+
 def runHollowKnight():
     print('Running Hollow Knight!')
     runApp(width=1200, height=600)
