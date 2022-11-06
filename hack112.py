@@ -31,22 +31,19 @@ def onAppStart(app):
     app.win = False
     app.lose = False
     app.start = False
-    if app.meme: #if we doing it, having meme images
-        app.knightpic=Image.open('amongus.png')
-    #(fix draw stuff here)
-    else:
-        #knightpic from https://hollowknight.fandom.com/wiki/Knight?file=The+Knight+Idle.png
-        app.knightpic= Image.open('knight.png')
+    app.isMeme = False
     #loading in images, from same folder
     #backgroundim from: https://hollowknight.fandom.com/wiki/False_Knight?file=Screenshot_HK_False_Knight_01.png
     app.backgroundim =Image.open('background.png')
     app.backgroundim = CMUImage(app.backgroundim)
+    #knightpic from https://hollowknight.fandom.com/wiki/Knight?file=The+Knight+Idle.png
+    app.knightpic= Image.open('knight.png')
     #bosspic from: https://villains.fandom.com/wiki/False_Knight?file=False_Knight.png
     #facing right
     app.bosspic=Image.open('boss.png')
-    #deadboss from: https://hollowknight.fandom.com/wiki/False_Knight?file=False+Knight+Unmasked.png
-    #facing right
-    app.deadboss=Image.open('deadboss.png')
+    # #deadboss from: https://hollowknight.fandom.com/wiki/False_Knight?file=False+Knight+Unmasked.png
+    # #facing right
+    # app.deadboss=Image.open('deadboss.png')
     # app.deadknight=Image.open('deadknight.png')
     #game over screen from: https://hollowknight.fandom.com/wiki/Steel_Soul_Mode?file=Steel_Soul_Game_Over.png
     app.gameoverimg =CMUImage(Image.open('gameOver.png'))
@@ -58,7 +55,10 @@ def onAppStart(app):
     app.startScreen = CMUImage(Image.open('startScreen.jpg'))
     #image from: https://interfaceingame.com/screenshots/hollow-knight-game-menu/
     app.pauseMenu = CMUImage(Image.open('pauseMenu.jpg'))
-    
+    #music: False Knight, Christopher Larkin, Hollow Knight Original Soundtrack (2017)
+    app.music = Sound('https://vgmsite.com/soundtracks/hollow-knight-original-soundtrack/iqtelxkifc/04.%20False%20Knight.mp3')
+    #music: Title Theme, Christopher LarkinHollow Knight Original Soundtrack (2017)
+    # app.startMusic = Sound('file:///C:/Users/eat20/OneDrive/Desktop/15112/hack112/hollow%20knight%20theme.mp3')
     app.bossatkCounter = 0
     #boss images from: https://www.spriters-resource.com/pc_computer/hollowknight/sheet/132959/
     bossatkNames = ['bossdab.png', 'bossjump.png','bossland.png']
@@ -85,7 +85,15 @@ def onAppStart(app):
     app.boss=Boss(bossX, bossY, bossHeight, bossWidth)
    
 def onStep(app): 
+    if (not app.start):
+        # app.startMusic.play(loop=True)
+        app.pause = True
+    if (app.start):
+        app.time+=1
+        # app.startMusic.pause()
+        app.music.play(loop=True)
     if (app.gameOver or app.pause or not app.start):
+        app.music.pause()
         return
     if (app.boss.getHealth()<=0):
         app.gameOver = True
@@ -93,19 +101,14 @@ def onStep(app):
     elif (app.knight.getHealth()<=0):
         app.gameOver = True
         app.lose = True
-    if (not app.start):
-        app.pause = True
-    if (app.start):
-        app.time+=1
 
     if app.knight.attackframe>0:
         app.knight.attackframe-=1
     
     if app.time%75==0:
         app.boss.attackKnight(app,app.knight)
-        print('attack')
     if app.bossTimerAtk==29:
-        app.knight.isAttacking=False
+        app.boss.isAttacking=False
         app.bossTimerAtk=0
     if app.boss.isAttacking:
         app.bossTimerAtk+=1
@@ -129,18 +132,18 @@ def onStep(app):
         app.knight.loc[1] -= app.knight.dy
     elif app.knight.dy != 0 and app.knight.jumping == False:
         app.knight.loc[1] -= app.knight.dy
-        app.knight.dy -= 11
+        app.knight.dy -= 14
     
     #gravity limit on the knight (does not apply to the boss)
-#    if app.knight.dy <= -10:
-#        app.knight.dy = -10
+    if app.knight.dy <= -30:
+        app.knight.dy = -30
 
     #502 is y coordinate of bottom of knight
     if app.knight.loc[1] + app.knight.height >= 502:
         app.knight.loc[1] = 502 - app.knight.height
         app.knight.dy = 0
         app.knight.jumpTime = 0 
-  
+
 def onKeyHold(app, keys):
     if (not app.start):
         app.time = 0
@@ -183,18 +186,27 @@ def onKeyPress(app, key):
     #     app.start = False
     #if (key == 'z'):
     #    app.knight.jump()
-    # if (key == 'tab'):
-    #     app.meme = True
-    
+    if (key == 'tab'):
+        app.isMeme = not app.isMeme
+    if (app.isMeme):
+        meme(app)
+
 def onKeyRelease(app, key):
-    if (key == 'z'):
+    if (key == 'z') and (app.knight.jumping == True):
         app.knight.jumping = False
+        app.knight.dy -= 51
 
 # changes movement, attack, and jump
 
 def outOfBounds(app,L):
     x,y=L
     return not(x>0 and x<app.width and y>0 and y<app.height)
+
+def meme(app):
+    #amongus credit: https://pixabay.com/illustrations/among-us-icon-crewmate-imposter-6008615/
+    app.knightpic=Image.open('amongus.png')
+    #shrek credit: https://www.deviantart.com/darkwoodsx/art/shrek-head-png-2-673125213
+    app.shrek=Image.open('shrek.png')
 
 ################################ Classes ####################################
 class Knight():
@@ -236,6 +248,7 @@ class Knight():
     def damageBoss(self, x):
         self.health -= x
 
+
     def attackBoss(self,boss):
         self.attackframe=5
         if (boss.loc[0] - self.width <= self.loc[0] <= boss.loc[0] + boss.width and 
@@ -265,7 +278,7 @@ class Knight():
 
     def jump(self):
         self.jumping == True
-        self.dy = 20
+        self.dy = 30
 
 class Boss:
     def __init__(self, x, y, height, width):
@@ -273,7 +286,7 @@ class Boss:
         self.loc = [x,y]
         self.height=height
         self.width=width
-        self.health=65
+        self.health=260
         self.speed=10
         self.dir="left"
         self.movetime=0
@@ -309,8 +322,8 @@ class Boss:
     def jump(self,knight):
         # self.xspeed=[] #jump a certain height
         self.dy = 31
-        targetX = knight.loc[0] + knight.width/2 
-        self.dx = (self.loc[0] - targetX) / 50
+        targetX = knight.loc[0] + knight.width/2
+        self.dx = (self.loc[0] + self.width/2 - targetX) / 50
 
     def attackKnight(self,app,knight):
         # atk=random.randint(1,10) #we want a random attack
@@ -328,7 +341,7 @@ class Boss:
         elif self.isJumping == False: #jump towards knightselfisJumping == False:
             self.isJumping = True
             self.jump(knight)
-            if knight.loc[0] >self.getLoc()[0]:
+            if knight.loc[0] + knight.width/2 >self.getLoc()[0] + self.width/2:
                 self.dir="right"
             else: 
                 self.dir="left"
@@ -354,11 +367,11 @@ def redrawAll(app):
     drawBoss(app)
 
     #health bars
-    drawHealth(app, 0,0,5,app.knight.getHealth())
-    drawHealth(app, app.width-65*10,0,65*10,app.boss.getHealth())
+    drawHealth(app, 50,10,5,app.knight.getHealth())
+    drawHealth(app, app.width-400,10,260/10,app.boss.getHealth()/10)
 
     #hitboxes
-    drawHitboxes(app)
+    # drawHitboxes(app)
     
     #start screen
     if not app.start:
@@ -381,7 +394,7 @@ def redrawAll(app):
         drawImage(app.pauseMenu, 0, 0, width=app.width, height=app.height)
         drawRect(app.width/2-100, app.height/2-70, 200, 140, fill='black')
         drawLabel('esc to unpause', app.width/2, app.height/2-30, fill='white', font='monospace', size=17)   
-        # drawLabel('tab for menu', app.width/2, app.height/2-10, fill='white', font='monospace', size=17)   
+        drawLabel('tab & unpause for a surprise ;)', app.width/2, app.height/2-10, fill='white', font='monospace', size=17)   
         drawLabel('h for help', app.width/2, app.height/2+10, fill='white', font='monospace', size=17)
     
     drawLabel('Made by sun garden', app.width/2, app.height-20, fill='white', font='monospace', size=17)   
@@ -434,11 +447,17 @@ def drawBoss(app):
             drawImage(CMUImage(tran(app,a)),x, y)
     # if app.isBossAtking:
     #     for image in app.bossatk:
-    #         drawImage(CMUImage(image),x,y)
+    #         drawImage(CMUImage(image),x,y)     
+    if (app.isMeme):
+        if app.boss.getDir()=="right":
+            drawImage(CMUImage(app.shrek),x, y)
+        else:
+            a=copy.copy(app.shrek)
+            drawImage(CMUImage(tran(app,a)),x, y)
 
 def drawHitboxes(app):
-    drawCircle(app.boss.loc[0], app.boss.loc[1], 15, fill = "red")
-    drawCircle(app.knight.loc[0], app.knight.loc[1], 15, fill = "red")
+    drawCircle(app.boss.hitbox[0], app.boss.hitbox[1], 15, fill = "red")
+    drawCircle(app.knight.hitbox[0], app.knight.hitbox[1], 15, fill = "red")
     drawLine(app.boss.loc[0], 0, app.boss.loc[0], 3000, fill="red")
     drawLine(app.boss.loc[0] + app.boss.width, 0, app.boss.loc[0] + app.boss.width, 3000, fill="red")
     drawLine(app.knight.loc[0] + app.knight.width, 0, app.knight.loc[0] + app.knight.width, 3000, fill="red")
