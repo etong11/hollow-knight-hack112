@@ -27,52 +27,50 @@ def onAppStart(app):
     app.stepsPerSecond=100
     app.meme = False
     app.gameOver = False
-    app.paused = False
+    app.pause = False
     app.win = False
     app.lose = False
     app.start = False
     if app.meme: #if we doing it, having meme images
-        pass
+        app.knightpic=Image.open('amongus.png')
     #(fix draw stuff here)
-    else: #loading in images, from same folder
-        #backgroundim from: https://hollowknight.fandom.com/wiki/False_Knight?file=Screenshot_HK_False_Knight_01.png
-        app.backgroundim =Image.open('background.png')
-        app.backgroundim = CMUImage(app.backgroundim)
+    else:
         #knightpic from https://hollowknight.fandom.com/wiki/Knight?file=The+Knight+Idle.png
         app.knightpic= Image.open('knight.png')
-        #bosspic from: https://villains.fandom.com/wiki/False_Knight?file=False_Knight.png
-        #facing right
-        app.bosspic=Image.open('boss.png')
-        #deadboss from: https://hollowknight.fandom.com/wiki/False_Knight?file=False+Knight+Unmasked.png
-        #facing right
-        app.deadboss=Image.open('deadboss.png')
-        # app.deadknight=Image.open('deadknight.png')
-        #game over screen from: https://hollowknight.fandom.com/wiki/Steel_Soul_Mode?file=Steel_Soul_Game_Over.png
-        app.gameoverimg =CMUImage(Image.open('gameOver.png'))
-        #image from: https://www.reddit.com/r/HollowKnight/comments/ld7tgb/i_did_it_thats_the_only_after_credits_massage/
-        app.gameoverWin = CMUImage(Image.open('gameOverWin.png'))
-        #attack image from: https://drive.google.com/drive/folders/1kyg661EDV45McoJQNmwbIXqYgniN48PU
-        app.knightattack=Image.open('knightAtk.png')
-        #image from: https://frictionlit.org/july-staff-picks-action-adventure-games-k-drama-grim-reapers-and-podcasts/
-        app.startScreen = CMUImage(Image.open('startScreen.jpg'))
-        #image from: https://interfaceingame.com/screenshots/hollow-knight-game-menu/
-        app.pauseMenu = CMUImage(Image.open('pauseMenu.jpg'))
-        
-        app.bossatkCounter = 0
-        #boss images from: https://www.spriters-resource.com/pc_computer/hollowknight/sheet/132959/
-        bossatkNames = ['bossdab.png', 'bossjump.png','bossland.png']
-        bossatkImages=[]
-        for im in bossatkNames:
-            for i in range(8): bossatkImages.append(Image.open(im))
+    #loading in images, from same folder
+    #backgroundim from: https://hollowknight.fandom.com/wiki/False_Knight?file=Screenshot_HK_False_Knight_01.png
+    app.backgroundim =Image.open('background.png')
+    app.backgroundim = CMUImage(app.backgroundim)
+    #bosspic from: https://villains.fandom.com/wiki/False_Knight?file=False_Knight.png
+    #facing right
+    app.bosspic=Image.open('boss.png')
+    #deadboss from: https://hollowknight.fandom.com/wiki/False_Knight?file=False+Knight+Unmasked.png
+    #facing right
+    app.deadboss=Image.open('deadboss.png')
+    # app.deadknight=Image.open('deadknight.png')
+    #game over screen from: https://hollowknight.fandom.com/wiki/Steel_Soul_Mode?file=Steel_Soul_Game_Over.png
+    app.gameoverimg =CMUImage(Image.open('gameOver.png'))
+    #image from: https://www.reddit.com/r/HollowKnight/comments/ld7tgb/i_did_it_thats_the_only_after_credits_massage/
+    app.gameoverWin = CMUImage(Image.open('gameOverWin.png'))
+    #attack image from: https://drive.google.com/drive/folders/1kyg661EDV45McoJQNmwbIXqYgniN48PU
+    app.knightattack=Image.open('knightAtk.png')
+    #image from: https://frictionlit.org/july-staff-picks-action-adventure-games-k-drama-grim-reapers-and-podcasts/
+    app.startScreen = CMUImage(Image.open('startScreen.jpg'))
+    #image from: https://interfaceingame.com/screenshots/hollow-knight-game-menu/
+    app.pauseMenu = CMUImage(Image.open('pauseMenu.jpg'))
+    
+    app.bossatkCounter = 0
+    #boss images from: https://www.spriters-resource.com/pc_computer/hollowknight/sheet/132959/
+    bossatkNames = ['bossdab.png', 'bossjump.png','bossland.png']
+    bossatkImages=[]
+    for im in bossatkNames:
+        for i in range(8): bossatkImages.append(Image.open(im))
 
-        # bossatkImages = [Image.open(name) for name in bossatkNames]
-        
-        app.bossatk = 3*[app.bosspic]+ bossatkImages  +8*[bossatkImages[-1]]
-        # print(app.bossatk,len(app.bossatk))
-        
+    app.bossatk = 3*[app.bosspic]+ bossatkImages  +8*[bossatkImages[-1]]
+    
 
-        #boss atk images from: https://www.spriters-resource.com/pc_computer/hollowknight/sheet/132959/
-        app.bossBasicAtk = 6*[Image.open('bossBasicAtk1.png')]+6*[ Image.open('bossBasicAtk2.png')]+6*[Image.open('bossBasicAtk3.png')]
+    #boss atk images from: https://www.spriters-resource.com/pc_computer/hollowknight/sheet/132959/
+    app.bossBasicAtk = 5*[Image.open('bossBasicAtk1.png')]+5*[ Image.open('bossBasicAtk2.png')]+15*[Image.open('bossBasicAtk3.png')]+5*[app.bosspic]
 
     #character info or objects
     #knight
@@ -82,14 +80,13 @@ def onAppStart(app):
     
     #boss
     bossHeight, bossWidth = app.bosspic.height, app.bosspic.width
-    print(bossWidth)
     bossX = app.width*(1/2) 
     bossY = 502
     app.boss=Boss(bossX, bossY, bossHeight, bossWidth)
     
     
 def onStep(app): 
-    if (app.gameOver):
+    if (app.gameOver or app.pause or not app.start):
         return
     if (app.boss.getHealth()<=0):
         app.gameOver = True
@@ -98,12 +95,16 @@ def onStep(app):
         app.gameOver = True
         app.lose = True
     if (not app.start):
-        app.paused = True
-    app.time+=1
+        app.pause = True
+    if (app.start):
+        app.time+=1
+
+    if app.knight.attackframe>0:
+        app.knight.attackframe-=1
     
-    if app.time%300:
+    if app.time%75==0:
         app.boss.attackKnight(app,app.knight)
-    if app.bossTimerAtk==18:
+    if app.bossTimerAtk==29:
         app.knight.isAttacking=False
         app.bossTimerAtk=0
     if app.boss.isAttacking:
@@ -128,7 +129,7 @@ def onStep(app):
         app.knight.loc[1] -= app.knight.dy
     elif app.knight.dy != 0 and app.knight.jumping == False:
         app.knight.loc[1] -= app.knight.dy
-        app.knight.dy -= 10
+        app.knight.dy -= 11
     
     #gravity limit on the knight (does not apply to the boss)
 #    if app.knight.dy <= -10:
@@ -141,7 +142,9 @@ def onStep(app):
         app.knight.jumpTime = 0 
   
 def onKeyHold(app, keys):
-    if (app.gameOver or not app.start or app.paused):
+    if (not app.start):
+        app.time = 0
+    if (app.gameOver or not app.start or app.pause):
         return
     if 'left' in keys:
         #move knight left (depends on char speed)
@@ -164,23 +167,24 @@ def onKeyHold(app, keys):
         app.knight.jumping = False
 
 def onKeyPress(app, key):
-    print(key)
     if (app.gameOver):
         if (key=='space'):
             onAppStart(app)
         return
     if (not app.start):
         if (key=='space'):
-            app.paused = False
+            app.pause = False
             app.start = True
     if(key == 'x' and app.start and not app.paused):
         app.knight.attackBoss(app.boss)
     if (key == 'escape'):
-        app.paused = not app.paused
+        app.pause = not app.pause
     # if (key == 'tab'):
     #     app.start = False
     #if (key == 'z'):
     #    app.knight.jump()
+    # if (key == 'tab'):
+    #     app.meme = True
     
 def onKeyRelease(app, key):
     if (key == 'z'):
@@ -190,10 +194,6 @@ def onKeyRelease(app, key):
 
 def tran(app,image):
     return image.transpose(Image.FLIP_LEFT_RIGHT)
-
-def runHollowKnight():
-    print('Running Hollow Knight!')
-    runApp(width=1200, height=600)
 
 def redrawAll(app):
     #background
@@ -222,7 +222,7 @@ def redrawAll(app):
             drawImage(app.gameoverimg, 0,0, width=app.width, height=app.height)
             drawRect(app.width/2-350/2, app.height*(6/8), 350, 100, fill='black')
             drawLabel('Press space to play again', app.width/2+10, app.height*(6/8), fill='white', size=30, font='monospace')  
-    if app.start and app.paused:
+    if app.start and app.pause:
         drawImage(app.pauseMenu, 0, 0, width=app.width, height=app.height)
         drawRect(app.width/2-100, app.height/2-70, 200, 140, fill='black')
         drawLabel('esc to unpause', app.width/2, app.height/2-30, fill='white', font='monospace', size=17)   
@@ -252,18 +252,18 @@ def drawKnight(app):
             drawImage(CMUImage(app.knightattack),x-width*2, y,width=app.knightattack.width/2,height=app.knightpic.height)
         a=copy.copy(app.knightpic)
         drawImage(CMUImage(tran(app,a)),x, y)
-        
+
 def drawBoss(app):
     x,y=app.boss.getLoc()
     if app.boss.isJumping:#in air
         a=app.bossatk[app.bossTimerJump%35]
         if app.boss.getDir()=="right":
-            drawImage(CMUImage(a),x,y)
+            drawImage(CMUImage(a),x,y-(a.height)/2)
         else:
             b=copy.copy(a)
-            drawImage(CMUImage(tran(app,b)),x, y)
+            drawImage(CMUImage(tran(app,b)),x, y-(a.height)/2)
     elif app.boss.isAttacking:
-        a=app.bossBasicAtk[app.bossTimerAtk%18]
+        a=app.bossBasicAtk[(app.bossTimerAtk)%30]
         if app.boss.getDir()=="right":
             drawImage(CMUImage(a),x,502-a.height)
         else:
@@ -300,7 +300,7 @@ class Knight():
         self.color = 'blue'
         self.loc = [x, y]
         self.health=5
-        self.speed=10
+        self.speed=20
         self.attack=5
         self.dir="right"
         self.iframe=[0,False]
@@ -333,10 +333,11 @@ class Knight():
         self.health -= x
 
     def attackBoss(self,boss):
+        self.attackframe=5
         if (boss.loc[0] - self.width <= self.loc[0] <= boss.loc[0] + boss.width and 
             boss.loc[1] - self.height <= self.loc[1] <= boss.loc[1] + boss.height):
             boss.takeDamage(self.attack)
-            self.attackframe=5
+            
     
     def move(self,maxx,maxy,dx,dy):
         for i in range(self.speed):
@@ -347,20 +348,20 @@ class Knight():
         # if outOfBounds(app,self.loc()):pass
     
     def takeDamage(self, int):
-        if self.iframe[1]:
-            self.iframe[0]-=1
-            if self.iframe[0]==0: self.iframe[1]=False
-        
-        else: 
-            self.health-=int
-            self.iframe=[5,True]
-    
+        self.health-=int
+        # if self.iframe[1]:
+        #     self.iframe[0]-=1
+        #     if self.iframe[0]==0: self.iframe[1]=False
+        # else: 
+        #     self.health-=int
+        #     self.iframe=[5,True]
+
     def heal(self,int):
         self.health+=int
 
     def jump(self):
         self.jumping == True
-        self.dy = 10
+        self.dy = 20
 
 class Boss:
     def __init__(self, x, y, height, width):
@@ -411,9 +412,9 @@ class Boss:
         # atk=random.randint(1,10) #we want a random attack
         if (self.loc[0] - knight.width <= knight.loc[0] <= self.loc[0] + self.width and
             self.loc[1] - knight.height <= knight.loc[1] <= self.loc[1] + self.height):
-            if self.isAttacking==False and self.isJumping==False:
-                self.isAttacking=True
-                self.normalAttack(knight)
+            # if self.isAttacking==False and self.isJumping==False:
+            self.isAttacking=True
+            self.normalAttack(knight)
                 # if atk >9:
                 #     return self.bigAttack(knight) #define 
                 # if atk >4:
@@ -438,5 +439,9 @@ class Boss:
 
     def normalAttack(self, knight):
         knight.takeDamage(1)
+    
+def runHollowKnight():
+    print('Running Hollow Knight!')
+    runApp(width=1200, height=600)
     
 runHollowKnight()
