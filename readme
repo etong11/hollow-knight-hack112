@@ -1,0 +1,101 @@
+No external modules required; run hack112.py to start program
+--------------------------------------------------------------------------------
+
+Project description:
+Our goal was to code a bossfight from the game "Hollow Knight", by Team Cherry.
+
+
+Instead of focusing on the 2d, vertical, side-scrolling aspect of Hollow Knight, we mainly tried to implement basic
+    combat mechanics necessary for the bossfight. This includes the knight's health, basic movement controls, a hurtbox,
+    and a simple nail attack to damage the boss with. As for the boss, we tried to create a hurtbox, health, and at least
+    one attack. This way, we would have at least the base gameplay for a simple bossfight, in a way that would be somewhat
+    reminiscient of Hollow Knight.
+
+
+We based the project on the False Knight from Hollow Knight, one of the first fully-fledged bossfights in the game. 
+    Not only does the False Knight have relatively simple mechanics compared to other bosses, this would also make the
+    knight's simple movement accurate to how he is encountered in game, since the player has not yet obtained later-game
+    movement abilities (this gives us an excuse not to code in dashes, walljumps, or spells). As for the False Knight,
+    its variety of attacks would make our gameplay more interesting than a boss with only a few attacks. The attacks
+    themselves didn't seem too complicated, either, however some mechanics of the bossfight would be difficult to
+    implement, such as its stagger phases, and proximity-based attack pattern. We decided that although these would be
+    cool to have, they wouldn't be necessary for us to have a "working" program, and we could always try to implement them
+    later if we had extra time. Thus, our base program would have the knight, with a healthbar, hurtbox, and movement, and
+    the boss, with its health and at least one attack. 
+
+The next step was to add in sprites and animations for the knight, boss, and background, to make the gameplay immersive. 
+    The baseline for our animations would be to have a sprite appearing for the knight's attack, and the boss sprite 
+    changing to indicate an attack. This would be the minimum needed for a player to understand what's happening in game.
+    Anything beyond that, including idle animations, transition animations, and effects, would help make the game appear
+    smoother and less janky, but the gameplay would functionally be the same.
+
+The final crucial element is the UI, which mainly amounts to the knight's health, a pause/start menu, and a gameover menu.
+    Players of Hollow Knight would realize that this list didn't include the soul bar and geo count, geo which we didn't
+    include because we only wanted to create the bossfight gameplay, the soul bar is useful for healing during the fight,
+    but otherwise doesn't serve any purpose unless we decide to add spells later, so isn't necessary for a working bossfight.
+    We also included a boss healthbar in the code, but that was mainly for testing purposes since the boss's health doesn't
+    normally show in-game. Finally, a gameover screen doesn't normally come up in a regular Hollow Knight playthrough, but
+    we thought it would be appropriate since we're only recreating a single part of the game. Alternatively, we could make
+    the knight automatically respawn with the boss back at full health to functionally restart the fight, but the gameover
+    screen sort of serves the purpose of having a pause buffer between respawns anyway.
+
+
+Some important details to note are having invincibility frames and knockback when the knight gets hit, so he doesn't
+    instantly die when he collides with the boss's hitboxes. Also, delays between the bosses attacks, to control the
+    pacing and patterns of his attacks. Some other things are pushback from a nail hit, and only being able to do downward
+    slashes if the knight is in the air (if we implemented directional attacks).
+
+
+--------------------------------------------------------------------------------
+Extras (to add if we have extra time) (somewhat ordered by priority):
+- directional nail attacks
+- more boss attacks + attack pattern based on proximity from the knight
+- smoother animations/effects
+- stagger phases + death animation
+  (+add "berserk" attack which follows a stagger, which causes debris to fall from the ceiling)
+  (++add the finishing attack where False Knight breaks through the ground, signaling the end of the fight)
+
+- soul meter (for healing, maybe spells later)
+    ^with these we should have almost completely replicated the in-game bossfight
+
+     anything added below would just be other content that exists in Hollow Knight but in a normal playthrough,
+     a player wouldn't have these abilities yet.
+     (we can implement these features as the lategame refight of False Knight, the Failed Champion)
+
+- spells (in the following order)
+  (+descending dark (as requested by Jaden on the Hack112 discord))
+  (will probably just do the upgraded versions of the spells since that's how they will probably be for Failed Champion,
+    but we could allow you to toggle between no spell, base version, and shade version for every spell)
+  (++shade soul (because it's easy lmao))
+  (+++abyss shriek)
+
+- death animation for the knight??
+- extra masks + soul vessels
+  (-soul vessels are weird because they fill up slower, give less, and have a delay before the soul moves into the meter)
+  (will probably allow toggling as well so you can decide how you want to fight False Knight/Failed Champion)
+
+- faster attacks, more health + other changes for Failed Champion
+  (ok so basically you can toggle everything LMAO I'm not going to say it anymore)
+
+- charms????????????? (BUT ONLY A FEW IM NOT CODING EVERY SINGLE CHARM WTF)
+  (+strength (would probably be the easiest))
+  (+shaman stone (tied for easiest)
+  (++soul eater/soul catcher (also easy))
+  (+++quick slash, longnail/pride, spell twister (not as easy, but good charms))
+  (++++quick focus/deep focus (also not too hard, synergy might be annoying))
+  (+++++fury (for speedrunners))
+  (-I'm not adding heart or lifeblood lol who would use that)
+  (-greed for obvious reasons)
+  (-other charms not mentioned because they're 
+    1. useless
+    2. impractical
+    3. annoying to code
+    4. just weird (as in no one uses these charms (heavy blow))
+    5. annoying to code
+    6. annoying to code
+    7. thorns
+    8. I have a personal grudge against them
+  )
+
+- I think that's it, there's no way we will get to all these things but it would be sick if we did
+- I just realized we would need to make extra UI elements, which isn't too bad for toggling certain features but CHARMS
